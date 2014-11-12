@@ -89,6 +89,9 @@ module RequestLogAnalyzer::FileFormat
       analyze.timespan
       analyze.hourly_spread
 
+      analyze.hourly_spread title:'Over 5s request distribution per hour',
+        if: lambda { |request| request[:duration] && request[:duration] > 5.0 }
+
       analyze.frequency category: REQUEST_CATEGORIZER, title: 'Most requested'
       analyze.frequency :method, title: 'HTTP methods'
       analyze.frequency :status, title: 'HTTP statuses returned'
@@ -100,6 +103,9 @@ module RequestLogAnalyzer::FileFormat
 
       analyze.frequency category: REQUEST_CATEGORIZER, title: 'Process blockers (> 1 sec duration)',
         if: lambda { |request| request[:duration] && request[:duration] > 1.0 }
+
+      analyze.frequency category: REQUEST_CATEGORIZER, title: 'Process blockers (> 5 sec duration)',
+        if: lambda { |request| request[:duration] && request[:duration] > 5.0 }
 
       analyze.frequency category: lambda { |x| "[#{x[:missing_resource_method]}] #{x[:missing_resource]}" },
         title: 'Routing Errors', if: lambda { |request| !request[:missing_resource].nil? }
